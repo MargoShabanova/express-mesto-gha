@@ -6,7 +6,13 @@ const createUser = (req, res) => {
     .then((user) => {
       res.send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
+    });
 };
 
 const getUsers = (req, res) => {
@@ -14,15 +20,25 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.send({ data: users });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const getUserById = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Пользователь не найден.' });
+        return;
+      }
       res.send({ data: user });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
+    });
 };
 
 const updateUser = (req, res) => {
@@ -33,9 +49,23 @@ const updateUser = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Пользователь не найден.' });
+        return;
+      }
       res.send({ data: user });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Пользователь не найден.' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
+    });
 };
 
 const updateAvatar = (req, res) => {
@@ -46,9 +76,19 @@ const updateAvatar = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Пользователь не найден.' });
+        return;
+      }
       res.send({ data: user });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
+    });
 };
 
 module.exports = {
