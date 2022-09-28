@@ -56,6 +56,16 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res, next) => {
+  const { _id } = req.user;
+
+  User.findById(_id)
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(next);
+};
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
@@ -147,4 +157,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getCurrentUser,
 };
