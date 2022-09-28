@@ -24,13 +24,7 @@ const createUser = (req, res) => {
       password: hash,
     }))
     .then((user) => {
-      res.status(201).send({
-        _id: user._id,
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email,
-      });
+      res.status(201).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

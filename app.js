@@ -12,13 +12,13 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6320e9dd4baa75a7a9868f0b',
-  };
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '6320e9dd4baa75a7a9868f0b',
+//   };
 
-  next();
-});
+//   next();
+// });
 
 app.post('/signin', login);
 app.post('/signup', createUser);
