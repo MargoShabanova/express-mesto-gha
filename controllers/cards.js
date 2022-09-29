@@ -29,22 +29,32 @@ const createCard = (req, res) => {
     });
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+const deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(ERROR_404).send({ message: 'Карточка не найдена.' });
-        return;
+        res.status(404).send({ message: 'Карточка не найдена.' });
       }
-      res.send({ data: card });
+      if (!card.owner.equals(req.user._id)) {
+        res.status(403).send({ message: 'Недостаточно прав.' });
+      }
+      Card.findByIdAndRemove(req.params.cardId)
+        .then((result) => {
+          if (!result) {
+            res.status(ERROR_404).send({ message: 'Карточка не найдена.' });
+            return;
+          }
+          res.send({ data: card });
+        })
+        .catch((err) => {
+          if (err.name === 'CastError') {
+            res.status(ERROR_400).send({ message: 'Переданы некорректные данные.' });
+            return;
+          }
+          next(err);
+        });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_400).send({ message: 'Переданы некорректные данные.' });
-        return;
-      }
-      res.status(ERROR_500).send({ message: err.message });
-    });
+    .catch(next);
 };
 
 const likeCard = (req, res) => {

@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
   let playload;
 
   try {
-    playload = jwt.veryfy(token, 'some-secret-key');
+    playload = jwt.verify(token, 'some-secret-key');
   } catch (err) {
     return res.status(401).send({ message: 'Необходима авторизация' });
   }
