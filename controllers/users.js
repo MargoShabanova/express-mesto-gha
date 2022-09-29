@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
+const ColflictError = require('../errors/conflict-err');
 
-const ERROR_400 = 400;
-const ERROR_404 = 404;
-const ERROR_500 = 500;
+const message404 = 'Пользователь не найден.';
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -28,16 +29,17 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(ERROR_400)
-          .send({ message: 'Переданы некорректные данные.' });
+        next(new BadRequestError());
         return;
       }
-      res.status(ERROR_500).send({ message: err.message });
+      if (err.code === 11000) {
+        next(new ColflictError());
+      }
+      next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -49,13 +51,11 @@ const login = (req, res) => {
           httpOnly: true,
         })
         .send({
-          token,
+          email: user.email,
         })
         .end();
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
 const getCurrentUser = (req, res, next) => {
@@ -68,35 +68,33 @@ const getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send({ data: users });
     })
-    .catch((err) => res.status(ERROR_500).send({ message: err.message }));
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден.' });
+        next(new NotFoundError(message404));
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(ERROR_400)
-          .send({ message: 'Переданы некорректные данные.' });
+        next(new BadRequestError());
         return;
       }
-      res.status(ERROR_500).send({ message: err.message });
+      next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -106,27 +104,25 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден.' });
+        next(new NotFoundError(message404));
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(ERROR_400)
-          .send({ message: 'Переданы некорректные данные.' });
+        next(new BadRequestError());
         return;
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден.' });
+        next(new NotFoundError(message404));
         return;
       }
-      res.status(ERROR_500).send({ message: err.message });
+      next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -136,19 +132,17 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден.' });
+        next(new NotFoundError(message404));
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(ERROR_400)
-          .send({ message: 'Переданы некорректные данные.' });
+        next(new BadRequestError());
         return;
       }
-      res.status(ERROR_500).send({ message: err.message });
+      next(err);
     });
 };
 
