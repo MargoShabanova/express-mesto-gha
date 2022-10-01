@@ -30,7 +30,7 @@ const createUser = (req, res, next) => {
         name: user.name,
         about: user.about,
         avatar: user.avatar,
-        email: user.email,
+        email,
       });
     })
     .catch((err) => {
@@ -40,10 +40,10 @@ const createUser = (req, res, next) => {
       }
       if (err.code === 11000) {
         next(new ColflictError());
+        return;
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 const login = (req, res, next) => {
