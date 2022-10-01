@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -20,7 +21,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.post('/signin', login);
 app.post('/signup', createUser);
-// app.use('/', require('./routes'));
 
 app.use(auth);
 app.use('/users', routerUsers);
@@ -29,11 +29,13 @@ app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
 
+app.use(errors());
+
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
   res
-    .status(statusCode)
+    .status(err.statusCode)
     .send({
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
