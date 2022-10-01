@@ -42,8 +42,7 @@ const deleteCard = (req, res, next) => {
       Card.findByIdAndRemove(req.params.cardId)
         .then((result) => {
           if (!result) {
-            next(new ForbiddenError());
-            return;
+            throw new ForbiddenError();
           }
           res.send({ data: card });
         })
@@ -66,8 +65,7 @@ const likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        next(new NotFoundError(message404));
-        return;
+        throw new NotFoundError(message404);
       }
       res.send({ data: card });
     })
@@ -88,8 +86,7 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        next(new NotFoundError(message404));
-        return;
+        throw new NotFoundError(message404);
       }
       res.send({ data: card });
     })

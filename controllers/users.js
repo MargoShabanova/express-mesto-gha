@@ -36,7 +36,8 @@ const createUser = (req, res, next) => {
         next(new ColflictError());
       }
       next(err);
-    });
+    })
+    .catch(next);
 };
 
 const login = (req, res, next) => {
@@ -51,6 +52,10 @@ const login = (req, res, next) => {
           httpOnly: true,
         })
         .send({
+          _id: user._id,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
           email: user.email,
         })
         .end();
@@ -80,8 +85,7 @@ const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError(message404));
-        return;
+        throw new NotFoundError(message404);
       }
       res.send({ data: user });
     })
@@ -103,10 +107,6 @@ const updateUser = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
-      if (!user) {
-        next(new NotFoundError(message404));
-        return;
-      }
       res.send({ data: user });
     })
     .catch((err) => {
