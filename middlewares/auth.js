@@ -9,15 +9,15 @@ module.exports = (req, res, next) => {
   }
 
   const token = authorization.replace('Bearer ', '');
-  let playload;
+  let payload;
 
   try {
-    playload = jwt.verify(token, 'some-secret-key');
+    payload = jwt.verify(token, 'some-secret-key');
   } catch (err) {
     throw new UnauthorizedError();
   }
 
-  req.user = playload;
+  req.user = payload;
   next();
   return null;
 };
