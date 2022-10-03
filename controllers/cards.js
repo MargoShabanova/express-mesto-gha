@@ -3,7 +3,7 @@ const BadRequestError = require('../errors/bad-request-err');
 const ForbiddenError = require('../errors/forbidden-err');
 const NotFoundError = require('../errors/not-found-err');
 
-const message404 = 'Карточка не найдена.';
+const MESSAGE_404 = 'Карточка не найдена.';
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -34,16 +34,13 @@ const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFoundError(message404);
+        throw new NotFoundError(MESSAGE_404);
       }
       if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError();
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .then((result) => {
-          if (!result) {
-            throw new ForbiddenError();
-          }
+        .then(() => {
           res.send({ data: card });
         })
         .catch((err) => {
@@ -65,7 +62,7 @@ const likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NotFoundError(message404);
+        throw new NotFoundError(MESSAGE_404);
       }
       res.send({ data: card });
     })
@@ -86,7 +83,7 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NotFoundError(message404);
+        throw new NotFoundError(MESSAGE_404);
       }
       res.send({ data: card });
     })

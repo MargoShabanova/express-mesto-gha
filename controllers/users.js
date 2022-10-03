@@ -5,7 +5,7 @@ const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
 const ColflictError = require('../errors/conflict-err');
 
-const message404 = 'Пользователь не найден.';
+const MESSAGE_404 = 'Пользователь не найден.';
 
 const createUser = (req, res, next) => {
   const {
@@ -92,7 +92,7 @@ const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(message404);
+        throw new NotFoundError(MESSAGE_404);
       }
       res.send({ data: user });
     })
@@ -122,7 +122,7 @@ const updateUser = (req, res, next) => {
         return;
       }
       if (err.name === 'CastError') {
-        next(new NotFoundError(message404));
+        next(new NotFoundError(MESSAGE_404));
         return;
       }
       next(err);
@@ -139,7 +139,7 @@ const updateAvatar = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        next(new NotFoundError(message404));
+        next(new NotFoundError(MESSAGE_404));
         return;
       }
       res.send({ data: user });
