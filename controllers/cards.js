@@ -8,7 +8,7 @@ const MESSAGE_404 = 'Карточка не найдена.';
 const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      res.send({ data: cards });
+      res.send(cards);
     })
     .catch(next);
 };
