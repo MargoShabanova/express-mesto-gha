@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors, celebrate, Joi } = require('celebrate');
@@ -13,6 +14,21 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
+
+const allowedCors = [
+  'https://mesto-react.project.nomoredomains.icu',
+  'http://mesto-react.project.nomoredomains.icu',
+  'https://localhost:3000',
+  'http://localhost:3000',
+];
+
+const corsOptions = {
+  origin: allowedCors,
+  optionsSuccessStatus: 200,
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(bodyParser.json());
